@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
-import { Plus, Tag, ListTodo, X, ChevronDown, ChevronUp, UserPlus, Send, Video, FileText, Bell, Mail, Clock, PlusCircle, Edit, MessageSquare } from 'lucide-react';
+import { Tag, ListTodo, X, ChevronDown, ChevronUp, UserPlus, Video, FileText, Bell, Mail, Clock, PlusCircle, Edit, MessageSquare } from 'lucide-react';
 import { useFormStore } from '../store/formStore';
+import { AIAssistant } from './ui/AIAssistant';
+import { automations } from '../data/automations';
 
 interface TriggerOption {
   id: string;
@@ -12,6 +14,7 @@ interface TriggerOption {
     id: string;
     label: string;
     type: string;
+    placeholder?: string;
     options?: { value: string; label: string }[];
   }[];
 }
@@ -427,12 +430,22 @@ export const WorkflowBuilder: React.FC = () => {
                             placeholder={field.placeholder}
                           />
                         ) : (
-                          <textarea
-                            className="form-textarea"
-                            value={step.config.fields?.[field.id] || ''}
-                            onChange={(e) => handleFieldChange(step.id, field.id, e.target.value)}
-                            placeholder={field.placeholder}
-                          />
+                          <div className="relative form-field-ai-support">
+                            <AIAssistant
+                              automations={automations}
+                              selectedAutomationId={String(step.id)}
+                              placeholder="תאר את העסק שלך, קהל היעד, והמטרות השיווקיות שלך כדי לקבל הצעה מותאמת אישית"
+                              onGenerate={(content: string) => {
+                                handleFieldChange(step.id, field.id, content);
+                              }}
+                            />
+                            <textarea
+                              className="form-textarea"
+                              value={step.config.fields?.[field.id] || ''}
+                              onChange={(e) => handleFieldChange(step.id, field.id, e.target.value)}
+                              placeholder={field.placeholder || ''}
+                            />
+                          </div>
                         )}
                       </div>
                     ))}

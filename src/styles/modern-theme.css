@@ -1,0 +1,83 @@
+/* בסיס כללי */
+body {
+  background: linear-gradient(to bottom, #0f1113, #0d0f11);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* כותרת ראשית */
+h1 {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+/* טקסט פסקה */
+p {
+  font-size: 1.1rem;
+  color: #b0b0b0;
+  max-width: 500px;
+  margin-bottom: 1.5rem;
+}
+
+/* כפתור */
+.button-primary {
+  background-color: #33f0c8;
+  color: #000;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.button-primary:hover {
+  background-color: #29ddba;
+}
+
+/* קופסאות מידע */
+.card {
+  background-color: rgba(255, 255, 255, 0.04);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-top: 1rem;
+  color: #e0e0e0;
+}
+
+/* ניווט עליון */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 3rem;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.navbar a {
+  color: #dcdcdc;
+  text-decoration: none;
+  margin: 0 1rem;
+  font-weight: 500;
+}
+
+.navbar a:hover {
+  color: #33f0c8;
+}
+
+/* רקע רשת */
+.grid-background {
+  background-image: linear-gradient(#1a1a1a 1px, transparent 1px),
+                    linear-gradient(to right, #1a1a1a 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+}

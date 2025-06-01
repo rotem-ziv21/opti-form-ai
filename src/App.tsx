@@ -1,4 +1,4 @@
-import React from 'react';
+// React is automatically imported by JSX transform
 import { useFormStore } from './store/formStore';
 import { Stepper } from './components/Stepper';
 import { WelcomeScreen } from './components/WelcomeScreen';
@@ -9,7 +9,8 @@ import { DynamicForm } from './components/DynamicForm';
 import { CompletionScreen } from './components/CompletionScreen';
 import { Button } from './components/ui/Button';
 import { Workflow } from 'lucide-react';
-import { WorkflowAnimation } from './components/WorkflowAnimation';
+import { AIFix } from './components/AIFix';
+
 
 function App() {
   const {
@@ -17,9 +18,8 @@ function App() {
     selectedAutomation,
     formData,
     errors,
-    isSubmitting,
+    // isSubmitting removed as it's unused
     isComplete,
-    selectAutomation,
     updateFormData,
     setStep,
     validateCurrentStep,
@@ -44,7 +44,10 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen flex flex-col">
+      {/* AI Fix - this component will inject AI buttons into textareas */}
+      <AIFix />
+      
       <header className="bg-background text-white py-4 px-6 shadow-md">
         <div className="container mx-auto flex items-center">
           <Workflow size={24} className="text-primary mr-3" />
@@ -52,10 +55,10 @@ function App() {
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
+      <main className="flex-1 container mx-auto px-4 py-8 overflow-x-hidden">
+        <div className="max-w-4xl mx-auto w-full">
           {!isComplete && (
-            <>
+            <div className="mb-8 w-full overflow-x-auto">
               <Stepper 
                 steps={steps} 
                 currentStep={currentStep} 
@@ -65,14 +68,11 @@ function App() {
                   }
                 }}
               />
-              <WorkflowAnimation 
-                currentStep={currentStep} 
-                totalSteps={steps.length} 
-              />
-            </>
+
+            </div>
           )}
 
-          <div className="mt-8 transition-all duration-300">
+          <div className="mt-8 transition-all duration-300 w-full overflow-hidden">
             {currentStep === 0 && (
               <WelcomeScreen onNext={handleNext} />
             )}
@@ -104,7 +104,6 @@ function App() {
                 </div>
                 <AutomationSelection
                   selectedAutomation={selectedAutomation}
-                  onSelect={selectAutomation}
                 />
                 {errors.automation && (
                   <p className="mt-2 text-error text-center">{errors.automation}</p>
