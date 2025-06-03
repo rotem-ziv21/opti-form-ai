@@ -10,7 +10,7 @@ import { generateMessageContent } from '../../services/openai';
 interface FormFieldProps {
   id: string;
   label: string;
-  type: 'text' | 'textarea' | 'select' | 'number' | 'email' | 'url' | 'multiselect' | 'checkbox';
+  type: 'text' | 'textarea' | 'select' | 'number' | 'email' | 'url' | 'multiselect' | 'checkbox' | 'radio' | 'file';
   placeholder?: string;
   value: string | string[] | boolean;
   onChange: (value: string | string[] | boolean) => void;
@@ -21,6 +21,9 @@ interface FormFieldProps {
   automations?: Automation[];
   isOptional?: boolean;
   isMultiple?: boolean;
+  required?: boolean;
+  accept?: string;
+  description?: string;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
@@ -39,6 +42,9 @@ export const FormField: React.FC<FormFieldProps> = ({
   automations,
   isOptional,
   isMultiple,
+  required,
+  accept,
+  description,
 }) => {
   const [isAIDialogOpen, setIsAIDialogOpen] = useState(false);
   const [businessInfo, setBusinessInfo] = useState('');
@@ -74,7 +80,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       <div className="flex justify-between items-center">
         <label htmlFor={id} className="form-label">
           {label}
-          {!isOptional && <span className="text-error mr-1">*</span>}
+          {(required || !isOptional) && <span className="text-error mr-1">*</span>}
         </label>
       </div>
       
@@ -213,6 +219,39 @@ export const FormField: React.FC<FormFieldProps> = ({
               <span className="mr-2 text-sm text-gray-700">{placeholder}</span>
             </label>
           </div>
+        ) : type === 'radio' ? (
+          <div className="mt-2 space-y-2">
+            {options?.map((option) => (
+              <label key={option.value} className="inline-flex items-center cursor-pointer block">
+                <input
+                  type="radio"
+                  name={id}
+                  value={option.value}
+                  checked={(value as string) === option.value}
+                  onChange={(e) => onChange(e.target.value)}
+                  className="form-radio h-5 w-5 text-primary border-gray-300 focus:ring-primary"
+                />
+                <span className="mr-2 text-sm text-gray-700">{option.label}</span>
+              </label>
+            ))}
+          </div>
+        ) : type === 'file' ? (
+          <div className="mt-2">
+            <input
+              id={id}
+              type="file"
+              onChange={(e) => {
+                // Handle file upload
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                  onChange(files[0].name); // Store file name for now
+                }
+              }}
+              accept={accept}
+              className="form-input px-3 py-2 block w-full text-sm text-gray-700 border border-gray-300 rounded-md"
+            />
+            {description && <p className="mt-1 text-xs text-gray-500">{description}</p>}
+          </div>
         ) : (
           <input
             id={id}
@@ -229,7 +268,10 @@ export const FormField: React.FC<FormFieldProps> = ({
       </div>
       
       {error && <p className="mt-1 text-sm text-error">{error}</p>}
-      {isOptional && !error && (
+      {description && !error && (
+        <p className="mt-1 text-sm text-slate-500">{description}</p>
+      )}
+      {isOptional && !error && !description && (
         <p className="mt-1 text-sm text-slate-500">שדה זה אינו חובה</p>
       )}
       {isMultiple && type === 'select' && !error && (

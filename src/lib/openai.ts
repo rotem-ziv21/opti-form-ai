@@ -39,7 +39,7 @@ export async function generateTextWithAI(prompt: string, style: string) {
         }
       ],
       model: "gpt-4o",
-      max_tokens: 500,
+      max_tokens: 1000,
     });
 
     return completion.choices[0].message.content;

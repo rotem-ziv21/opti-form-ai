@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Automation, automations } from '../data/automations';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/Card';
-import { ChevronDown, ChevronUp, Settings, Facebook, Video, Globe, CheckCircle, XCircle, MessageCircle, AlertTriangle, Calendar, Loader2, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp, Settings, Facebook, Video, Globe, CheckCircle, XCircle, MessageCircle, AlertTriangle, Calendar, Loader2, Sparkles, Instagram } from 'lucide-react';
 import { useFormStore } from '../store/formStore';
 import { Button } from './ui/Button';
 import { FormField } from './ui/FormField';
@@ -36,7 +36,12 @@ export const AutomationSelection: React.FC<AutomationSelectionProps> = ({
     5, // Not interested
     6, // WhatsApp direct
     7, // Team notifications
-    8  // Meeting scheduled
+    8, // Meeting scheduled
+    9, // Instagram comment + private message
+    10, // תיאום פגישות
+    11, // מעקב אחר הצעות מחיר
+    12, // אוטומציות מרכזייה
+    13  // הערות למטמיע
   ];
   
   // Handle field change
@@ -336,6 +341,8 @@ export const AutomationSelection: React.FC<AutomationSelectionProps> = ({
                 return <AlertTriangle className="text-primary" size={20} />;
               case 'calendar':
                 return <Calendar className="text-primary" size={20} />;
+              case 'instagram':
+                return <Instagram className="text-primary" size={20} />;
               default:
                 return <Settings className="text-primary" size={20} />;
             }

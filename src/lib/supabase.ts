@@ -218,6 +218,36 @@ export async function saveActiveWorkflow(clientId: string, automationData: any, 
       if (formData.enable_website_automation !== undefined) detailedConfig.form_inputs.enable_website_automation = formData.enable_website_automation;
       if (formData.enable_whatsapp_direct !== undefined) detailedConfig.form_inputs.enable_whatsapp_direct = formData.enable_whatsapp_direct;
       
+      // Add Instagram automation fields
+      if (formData.enable_instagram_automation !== undefined) detailedConfig.form_inputs.enable_instagram_automation = formData.enable_instagram_automation;
+      if (formData.instagram_trigger_keywords) detailedConfig.form_inputs.instagram_trigger_keywords = formData.instagram_trigger_keywords;
+      if (formData.instagram_public_reply) detailedConfig.form_inputs.instagram_public_reply = formData.instagram_public_reply;
+      if (formData.instagram_private_message) detailedConfig.form_inputs.instagram_private_message = formData.instagram_private_message;
+      if (formData.instagram_invalid_response_message) detailedConfig.form_inputs.instagram_invalid_response_message = formData.instagram_invalid_response_message;
+      if (formData.instagram_success_response_message) detailedConfig.form_inputs.instagram_success_response_message = formData.instagram_success_response_message;
+      if (formData.enable_facebook_comments_automation !== undefined) detailedConfig.form_inputs.enable_facebook_comments_automation = formData.enable_facebook_comments_automation;
+      
+      // Add Meeting scheduling fields
+      if (formData.meeting_name) detailedConfig.form_inputs.meeting_name = formData.meeting_name;
+      if (formData.meeting_representative) detailedConfig.form_inputs.meeting_representative = formData.meeting_representative;
+      if (formData.meeting_available_times) detailedConfig.form_inputs.meeting_available_times = formData.meeting_available_times;
+      if (formData.meeting_location) detailedConfig.form_inputs.meeting_location = formData.meeting_location;
+      if (formData.meeting_duration) detailedConfig.form_inputs.meeting_duration = formData.meeting_duration;
+      if (formData.no_show_message) detailedConfig.form_inputs.no_show_message = formData.no_show_message;
+      if (formData.enable_ai_scheduling !== undefined) detailedConfig.form_inputs.enable_ai_scheduling = formData.enable_ai_scheduling;
+      
+      // Add Price quote tracking fields
+      if (formData.enable_price_quote_tracking) detailedConfig.form_inputs.enable_price_quote_tracking = formData.enable_price_quote_tracking;
+      if (formData.signed_quote_message) detailedConfig.form_inputs.signed_quote_message = formData.signed_quote_message;
+      
+      // Add Call center automation fields
+      if (formData.missed_call_message) detailedConfig.form_inputs.missed_call_message = formData.missed_call_message;
+      if (formData.enable_custom_hold_music !== undefined) detailedConfig.form_inputs.enable_custom_hold_music = formData.enable_custom_hold_music;
+      if (formData.enable_auto_dialer) detailedConfig.form_inputs.enable_auto_dialer = formData.enable_auto_dialer;
+      
+      // Add Implementation notes
+      if (formData.implementation_notes) detailedConfig.form_inputs.implementation_notes = formData.implementation_notes;
+      
       // Add active campaigns list
       if (formData.active_campaigns) detailedConfig.form_inputs.active_campaigns = formData.active_campaigns;
       

@@ -15,6 +15,8 @@ interface TriggerOption {
     label: string;
     type: string;
     placeholder?: string;
+    description?: string;
+    required?: boolean;
     options?: { value: string; label: string }[];
   }[];
 }
@@ -57,6 +59,60 @@ const triggerOptions: TriggerOption[] = [
     label: 'ליד נכנס מטיקטוק',
     description: 'הפעל כאשר ליד חדש נכנס מקמפיין טיקטוק',
     fields: []
+  },
+  {
+    id: 'instagram_comment',
+    label: 'תגובה באינסטגרם + הודעה בפרטי',
+    description: 'הפעל כאשר מישהו מגיב לפוסט באינסטגרם עם מילות מפתח',
+    fields: [
+      {
+        id: 'trigger_keywords',
+        label: 'מילות הפעלה לתגובה',
+        type: 'text',
+        placeholder: 'לדוגמה: שולחת, רוצה, אני, לינק',
+        description: 'מילים שיפעילו את האוטומציה כאשר מופיעות בתגובה (ניתן יותר ממילה אחת)',
+        required: true
+      },
+      {
+        id: 'public_reply',
+        label: 'תגובה פומבית לפוסט',
+        type: 'textarea',
+        placeholder: 'לדוגמה: שלחנו לך הודעה בפרטי 💬',
+        description: 'התגובה שתופיע באופן פומבי בתגובה לפוסט',
+        required: true
+      },
+      {
+        id: 'private_message',
+        label: 'הודעה פרטית באינסטגרם',
+        type: 'textarea',
+        placeholder: 'לדוגמה: היי! 😊\n\nכמו שביקשת, הנה הקישור למדריך: [קישור]\n\nרוצה שנשלח לך פרטים נוספים או נתאם שיחה? כתוב/י לי כאן את מספר הטלפון שלך 👇',
+        description: 'ההודעה שתישלח בפרטי באינסטגרם',
+        required: true
+      },
+      {
+        id: 'invalid_response_message',
+        label: 'הודעה למקרה של תגובה לא תקינה',
+        type: 'textarea',
+        placeholder: 'לדוגמה: אולי זו אני, אולי זו המערכת... 😅\n\nאבל נראה שלא קיבלנו מספר טלפון.\n\nאם בא לך שנחזור אליך – כתוב/י כאן את המספר שלך 👇',
+        description: 'הודעה שתישלח אם הלקוח לא שלח מספר טלפון',
+        required: true
+      },
+      {
+        id: 'success_response_message',
+        label: 'הודעה לאחר קבלת מספר טלפון',
+        type: 'textarea',
+        placeholder: 'לדוגמה: תודה! קיבלנו את המספר שלך ונחזור אליך בהקדם 🙏',
+        description: 'הודעה שתישלח לאחר שהלקוח שלח מספר טלפון',
+        required: true
+      },
+      {
+        id: 'enable_facebook_automation',
+        label: 'האם לבצע תהליך דומה גם בפייסבוק?',
+        type: 'checkbox',
+        description: 'סמן אם ברצונך להפעיל אוטומציה דומה גם בפייסבוק',
+        required: false
+      }
+    ]
   },
   {
     id: 'lead_no_response_24h',
