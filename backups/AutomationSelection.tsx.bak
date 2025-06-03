@@ -15,7 +15,7 @@ interface AutomationSelectionProps {
 export const AutomationSelection: React.FC<AutomationSelectionProps> = ({
   selectedAutomation
 }) => {
-  const { formData, updateFormData, validateCurrentStep, setStep, submitForm, selectAutomation } = useFormStore();
+  const { formData, updateFormData, validateCurrentStep, setStep } = useFormStore();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   const [fieldValues, setFieldValues] = useState<Record<string, any>>({});
@@ -92,14 +92,14 @@ export const AutomationSelection: React.FC<AutomationSelectionProps> = ({
     });
   }, [fieldValues]);
   
-  // Save and submit form
+  // Save and continue to next step
   const handleSaveAndContinue = () => {
     // Save all field values to form store
     updateFormData(fieldValues);
     
-    // Validate and submit form
+    // Validate and move to next step
     if (validateCurrentStep()) {
-      submitForm(); // Submit the form directly instead of moving to next step
+      setStep(4); // Move to workflow builder step
     }
   };
 
@@ -348,11 +348,7 @@ export const AutomationSelection: React.FC<AutomationSelectionProps> = ({
             >
               <CardHeader 
                 className="cursor-pointer hover:bg-gray-50"
-                onClick={() => {
-                  toggleSection(`automation_${automation.id}`)
-                  // בחירת האוטומציה הנוכחית
-                  selectAutomation(automation);
-                }}
+                onClick={() => toggleSection(`automation_${automation.id}`)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">

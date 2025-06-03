@@ -5,7 +5,9 @@ import { WelcomeScreen } from './components/WelcomeScreen';
 import { RegistrationForm } from './components/RegistrationForm';
 import { CampaignSettings } from './components/CampaignSettings';
 import { AutomationSelection } from './components/AutomationSelection';
+import { DynamicForm } from './components/DynamicForm';
 import { CompletionScreen } from './components/CompletionScreen';
+import { Button } from './components/ui/Button';
 import { Workflow } from 'lucide-react';
 import { AIFix } from './components/AIFix';
 
@@ -25,11 +27,11 @@ function App() {
     resetForm
   } = useFormStore();
 
-  const steps = ['ברוכים הבאים', 'פרטי התקשרות', 'הגדרת קמפיינים', 'בחירת אוטומציה', 'סיום'];
+  const steps = ['ברוכים הבאים', 'פרטי התקשרות', 'הגדרת קמפיינים', 'בחירת אוטומציה', 'הגדרת אוטומציה', 'סיום'];
 
   const handleNext = () => {
     if (validateCurrentStep()) {
-      if (currentStep === 3) {
+      if (currentStep === 4) {
         submitForm();
       } else {
         setStep(currentStep + 1);
@@ -106,10 +108,25 @@ function App() {
                 {errors.automation && (
                   <p className="mt-2 text-error text-center">{errors.automation}</p>
                 )}
+                <div className="mt-8 flex justify-between">
+                  <Button variant="outline" onClick={handleBack}>
+                    חזור
+                  </Button>
+                  <Button onClick={handleNext}>המשך</Button>
+                </div>
               </div>
             )}
 
-            {currentStep === 4 && isComplete && (
+            {currentStep === 4 && selectedAutomation && (
+              <DynamicForm
+                automation={selectedAutomation}
+                formData={formData}
+                setFormData={updateFormData}
+                errors={errors}
+              />
+            )}
+
+            {currentStep === 5 && isComplete && (
               <CompletionScreen onReset={resetForm} />
             )}
           </div>

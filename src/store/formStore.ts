@@ -40,8 +40,8 @@ export const useFormStore = create<FormState>((set, get) => ({
   setStep: (step) => set({ currentStep: step }),
   
   selectAutomation: (automation) => set({ 
-    selectedAutomation: automation,
-    currentStep: 4
+    selectedAutomation: automation
+    // לא משנים את currentStep כדי להישאר בשלב הנוכחי
   }),
   
   updateFormData: (data) => set((state) => ({ 
@@ -101,6 +101,13 @@ export const useFormStore = create<FormState>((set, get) => ({
         isValid = false;
         newErrors.active_campaigns = 'יש לבחור לפחות קמפיין אחד';
       }
+    } else if (currentStep === 3) {
+      // Validate automation selection
+      const { selectedAutomation } = get();
+      if (!selectedAutomation) {
+        isValid = false;
+        newErrors.automation = 'יש לבחור אוטומציה';
+      }
     } else if (currentStep === 4) {
       // Validate workflow steps
       if (workflowSteps.length === 0) {
@@ -128,8 +135,14 @@ export const useFormStore = create<FormState>((set, get) => ({
     set({ isSubmitting: true });
     
     try {
+      // הוספת לוג לבדיקת הנתונים שנשלחים
+      console.log('Submitting form with selectedAutomation:', selectedAutomation);
+      
       await saveIntakeForm({
         automation_id: selectedAutomation.id,
+        automation_title: selectedAutomation.title,
+        automation_name: `${selectedAutomation.category} - ${selectedAutomation.title}`,
+        automation_category: selectedAutomation.category,
         client_name: formData.fullName as string,
         business_name: formData.businessName as string,
         email: formData.email as string,
@@ -138,13 +151,15 @@ export const useFormStore = create<FormState>((set, get) => ({
           ...formData,
           workflow_steps: workflowSteps
         },
+        // העברת ה-selectedAutomation כדי שיהיה זמין בפונקציית השמירה
+        selectedAutomation,
         status: 'pending'
       });
       
       set({ 
         isSubmitting: false,
         isComplete: true,
-        currentStep: 5
+        currentStep: 4
       });
     } catch (error) {
       console.error('Error submitting form:', error);

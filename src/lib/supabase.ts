@@ -129,26 +129,52 @@ export async function createWorkflow(workflowData: Database['public']['Tables'][
 }
 
 // New function to save active workflows with their actions
-export async function saveActiveWorkflow(clientId: string, automationData: any, messageContent?: string) {
-  console.log('Saving active workflow for client:', clientId, automationData);
+export async function saveActiveWorkflow(clientId: string, automationData: any, messageContent?: string, formData?: any) {
+  console.log('Saving active workflow for client:', clientId);
+  console.log('Automation data received:', JSON.stringify(automationData, null, 2));
+  console.log('Form data received:', formData ? JSON.stringify(formData, null, 2) : 'No form data');
   
   try {
     // Log detailed debugging info
     console.log('Active workflow table check - using client ID:', clientId);
-    console.log('Automation data:', JSON.stringify(automationData));
     console.log('Message content:', messageContent);
     
-    // Create the active workflow data
+    // Make sure we have valid data - this is critical
+    if (!automationData) {
+      console.error('No automation data provided');
+      return null;
+    }
+    
+    // Create the active workflow data with safe defaults
     const workflowData: any = {
       client_id: clientId,
-      automation_id: automationData.id || 0,
-      automation_name: automationData.name || `${automationData.category || ''} - ${automationData.title || ''}`.trim(),
-      automation_title: automationData.title || '',
-      message_content: messageContent || automationData.defaultMessage || '',
+      automation_id: typeof automationData.id === 'number' ? automationData.id : 0,
+      automation_name: '',  // Will be set properly below
+      automation_title: automationData.title || 'אוטומציה',
+      // New field - automation_type
+      automation_type: automationData.type || automationData.source?.toLowerCase() || 'general',
+      message_content: messageContent || automationData.defaultMessage || 'הודעה אוטומטית ממערכת OptiOne',
       action_type: automationData.actionType || 'send_message',
-      source: automationData.source || 'Manual',
-      is_active: true
+      source: automationData.source || 'Form',
+      // New fields for triggers and scheduling
+      trigger_type: automationData.triggerType || 'manual',
+      trigger_config: automationData.triggerConfig || {},
+      schedule_type: automationData.scheduleType || 'immediate',
+      schedule_config: automationData.scheduleConfig || {},
+      is_active: true,
+      action_config: {}
     };
+    
+    // Set automation_name properly
+    if (automationData.name) {
+      workflowData.automation_name = automationData.name;
+    } else if (automationData.category && automationData.title) {
+      workflowData.automation_name = `${automationData.category} - ${automationData.title}`;
+    } else if (automationData.title) {
+      workflowData.automation_name = automationData.title;
+    } else {
+      workflowData.automation_name = 'אוטומציה חדשה';
+    }
     
     // Handle action_config properly
     if (automationData.config) {
@@ -163,11 +189,43 @@ export async function saveActiveWorkflow(clientId: string, automationData: any, 
           workflowData.action_config = {};
         }
       }
-    } else {
-      workflowData.action_config = {};
     }
     
-    console.log('Final active workflow data:', JSON.stringify(workflowData));
+    // Store all form data in action_config for detailed reference
+    if (formData) {
+      // Create a detailed configuration object with all form inputs
+      const detailedConfig = {
+        ...workflowData.action_config,
+        form_inputs: {}
+      };
+      
+      // Add all message fields from the form
+      if (formData.facebook_lead_message) detailedConfig.form_inputs.facebook_lead_message = formData.facebook_lead_message;
+      if (formData.tiktok_lead_message) detailedConfig.form_inputs.tiktok_lead_message = formData.tiktok_lead_message;
+      if (formData.website_lead_message) detailedConfig.form_inputs.website_lead_message = formData.website_lead_message;
+      if (formData.whatsapp_template_message) detailedConfig.form_inputs.whatsapp_template_message = formData.whatsapp_template_message;
+      if (formData.whatsapp_response_message) detailedConfig.form_inputs.whatsapp_response_message = formData.whatsapp_response_message;
+      if (formData.deal_closed_message) detailedConfig.form_inputs.deal_closed_message = formData.deal_closed_message;
+      if (formData.not_interested_message) detailedConfig.form_inputs.not_interested_message = formData.not_interested_message;
+      if (formData.team_notification_message) detailedConfig.form_inputs.team_notification_message = formData.team_notification_message;
+      if (formData.meeting_scheduled_message) detailedConfig.form_inputs.meeting_scheduled_message = formData.meeting_scheduled_message;
+      if (formData.meeting_reminder_24h) detailedConfig.form_inputs.meeting_reminder_24h = formData.meeting_reminder_24h;
+      if (formData.meeting_reminder_1h) detailedConfig.form_inputs.meeting_reminder_1h = formData.meeting_reminder_1h;
+      
+      // Add all boolean flags for enabled features
+      if (formData.enable_facebook_automation !== undefined) detailedConfig.form_inputs.enable_facebook_automation = formData.enable_facebook_automation;
+      if (formData.enable_tiktok_automation !== undefined) detailedConfig.form_inputs.enable_tiktok_automation = formData.enable_tiktok_automation;
+      if (formData.enable_website_automation !== undefined) detailedConfig.form_inputs.enable_website_automation = formData.enable_website_automation;
+      if (formData.enable_whatsapp_direct !== undefined) detailedConfig.form_inputs.enable_whatsapp_direct = formData.enable_whatsapp_direct;
+      
+      // Add active campaigns list
+      if (formData.active_campaigns) detailedConfig.form_inputs.active_campaigns = formData.active_campaigns;
+      
+      // Update the action_config with our detailed information
+      workflowData.action_config = detailedConfig;
+    }
+    
+    console.log('Final active workflow data to insert:', JSON.stringify(workflowData, null, 2));
     
     // Insert the active workflow data
     const { data, error } = await supabaseAdmin
@@ -327,26 +385,74 @@ export async function saveIntakeForm(formData: any) {
       });
       console.log('Workflow created successfully:', workflow);
       
-      // Prepare automation data for the active_workflows table
+      // יצירת לוג מפורט של כל הנתונים שמגיעים מהטופס
+      console.log('Full form data for debugging:', JSON.stringify(formData, null, 2));
+      
+      // הכנת נתוני האוטומציה לטבלת active_workflows
+      // שימוש בנתונים מה-selectedAutomation שנשלח מה-formStore
       const automationData = {
         id: formData.automation_id,
         title: formData.automation_title || '',
         name: formData.automation_name || '',
         category: formData.automation_category || '',
+        type: formData.automation_type || formData.source?.toLowerCase() || 'general',
         defaultMessage: 'הודעה אוטומטית ממערכת OptiOne',
         source: formData.source || 'Form',
         actionType: 'send_message',
-        config: {}
+        config: {},
+        // שדות חדשים לטריגרים ותזמונים
+        triggerType: formData.trigger_type || 'manual',
+        triggerConfig: formData.trigger_config || {},
+        scheduleType: formData.schedule_type || 'immediate',
+        scheduleConfig: formData.schedule_config || {}
       };
       
-      // Extract more detailed information from formData if available
+      // הוספת לוג לבדיקת נתוני האוטומציה הבסיסיים
+      console.log('Basic automation data:', automationData);
+      
+      // חילוץ מידע מפורט יותר מ-formData אם זמין
       if (formData.form_data) {
-        console.log('Form data details:', formData.form_data);
+        console.log('Form data details available');
         
-        // Try to extract automation details
-        if (formData.form_data.automation) {
-          console.log('Automation details:', formData.form_data.automation);
+        // ניסיון לחלץ פרטי אוטומציה
+        if (formData.selectedAutomation) {
+          console.log('Selected automation found in form data:', formData.selectedAutomation);
           
+          // עדכון נתוני האוטומציה מ-selectedAutomation
+          automationData.id = formData.selectedAutomation.id || automationData.id;
+          automationData.title = formData.selectedAutomation.title || automationData.title;
+          automationData.name = `${formData.selectedAutomation.category || ''} - ${formData.selectedAutomation.title || ''}`.trim() || automationData.name;
+          automationData.category = formData.selectedAutomation.category || automationData.category;
+          
+          // עדכון שדות נוספים אם קיימים
+          if (formData.selectedAutomation.type) {
+            automationData.type = formData.selectedAutomation.type;
+          }
+          
+          if (formData.selectedAutomation.config) {
+            automationData.config = formData.selectedAutomation.config;
+          }
+          
+          // עדכון נתוני טריגר ותזמון
+          if (formData.selectedAutomation.triggerType) {
+            automationData.triggerType = formData.selectedAutomation.triggerType;
+          }
+          
+          if (formData.selectedAutomation.triggerConfig) {
+            automationData.triggerConfig = formData.selectedAutomation.triggerConfig;
+          }
+          
+          if (formData.selectedAutomation.scheduleType) {
+            automationData.scheduleType = formData.selectedAutomation.scheduleType;
+          }
+          
+          if (formData.selectedAutomation.scheduleConfig) {
+            automationData.scheduleConfig = formData.selectedAutomation.scheduleConfig;
+          }
+        } else if (formData.form_data.automation) {
+          console.log('Automation details found in form_data:', formData.form_data.automation);
+          
+          // עדכון שדות בסיסיים
           if (formData.form_data.automation.title) {
             automationData.title = formData.form_data.automation.title;
           }
@@ -355,16 +461,37 @@ export async function saveIntakeForm(formData: any) {
             automationData.category = formData.form_data.automation.category;
           }
           
+          if (formData.form_data.automation.type) {
+            automationData.type = formData.form_data.automation.type;
+          }
+          
           if (formData.form_data.automation.config) {
             automationData.config = formData.form_data.automation.config;
+          }
+          
+          // עדכון נתוני טריגר ותזמון
+          if (formData.form_data.automation.triggerType) {
+            automationData.triggerType = formData.form_data.automation.triggerType;
+          }
+          
+          if (formData.form_data.automation.triggerConfig) {
+            automationData.triggerConfig = formData.form_data.automation.triggerConfig;
+          }
+          
+          if (formData.form_data.automation.scheduleType) {
+            automationData.scheduleType = formData.form_data.automation.scheduleType;
+          }
+          
+          if (formData.form_data.automation.scheduleConfig) {
+            automationData.scheduleConfig = formData.form_data.automation.scheduleConfig;
           }
         }
       }
       
-      // Get message content if available
+      // קבלת תוכן ההודעה אם זמין
       let messageContent = 'הודעה אוטומטית ממערכת OptiOne';
       
-      // Check all possible locations for message content
+      // בדיקת כל המיקומים האפשריים לתוכן ההודעה
       if (formData.message_content) {
         messageContent = formData.message_content;
         console.log('Using message_content from root:', messageContent);
@@ -376,10 +503,15 @@ export async function saveIntakeForm(formData: any) {
         console.log('Using message from automation:', messageContent);
       }
       
+      // לוג סופי של הנתונים שיישמרו
+      console.log('Final automation data for active_workflows:', JSON.stringify(automationData, null, 2));
       console.log('Final message content:', messageContent);
       
-      // Save to the new active_workflows table
-      await saveActiveWorkflow(client.id, automationData, messageContent);
+      // הכנת נתוני הטופס לשמירה מפורטת
+      const formDataToSave = formData.form_data || {};
+      
+      // שמירה בטבלת active_workflows החדשה עם כל נתוני הטופס
+      await saveActiveWorkflow(client.id, automationData, messageContent, formDataToSave);
       
       // If we have workflow steps, create them (original table)
       if (formData.workflow_steps && Array.isArray(formData.workflow_steps) && formData.workflow_steps.length > 0) {
