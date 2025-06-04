@@ -162,6 +162,8 @@ export async function saveActiveWorkflow(clientId: string, automationData: any, 
       schedule_type: automationData.scheduleType || 'immediate',
       schedule_config: automationData.scheduleConfig || {},
       is_active: true,
+      // סטטוס ברירת מחדל עבור אזור המנהל
+      status: 'pending',
       action_config: {}
     };
     
@@ -292,6 +294,66 @@ export async function createWorkflowSteps(
 
   if (error) throw error;
   return data;
+}
+
+// פונקציות עבור אזור המנהל
+export async function getActiveWorkflows() {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('active_workflows')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching active workflows:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Exception in getActiveWorkflows:', error);
+    return [];
+  }
+}
+
+export async function getActiveWorkflowById(id: string) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('active_workflows')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching active workflow by ID:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Exception in getActiveWorkflowById:', error);
+    return null;
+  }
+}
+
+export async function updateActiveWorkflowStatus(id: string, status: 'pending' | 'in_progress' | 'completed' | 'cancelled') {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('active_workflows')
+      .update({ status })
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error('Error updating active workflow status:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Exception in updateActiveWorkflowStatus:', error);
+    return null;
+  }
 }
 
 export async function getWorkflowExecutions(workflowId: string) {
