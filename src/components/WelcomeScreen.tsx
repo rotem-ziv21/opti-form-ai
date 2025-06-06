@@ -10,6 +10,9 @@ interface WelcomeScreenProps {
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onNext }) => {
   return (
     <div className="space-y-8 animate-fade-in">
+      <div className="flex justify-center mb-6">
+        <img src="/Optione logo.png" alt="OptiOne Logo" className="h-24 object-contain" />
+      </div>
       <Card className="text-center p-8 bg-gradient-to-br from-background/5 to-primary/5">
         <div className="max-w-2xl mx-auto space-y-6">
           <h1 className="text-3xl font-bold text-background">
