@@ -4,11 +4,28 @@ import OpenAI from 'openai';
 // Make sure to create a .env file with VITE_OPENAI_API_KEY set
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
 
+// Check if API key is available and valid
+const isApiKeyAvailable = OPENAI_API_KEY && OPENAI_API_KEY.length > 0;
+
 // Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // This is needed for client-side usage
-});
+let openai: OpenAI;
+
+// Only initialize if API key is available
+if (isApiKeyAvailable) {
+  try {
+    openai = new OpenAI({
+      apiKey: OPENAI_API_KEY,
+      dangerouslyAllowBrowser: true // This is needed for client-side usage
+    });
+  } catch (error) {
+    console.error('Failed to initialize OpenAI client:', error);
+    // Create a fallback client that will be replaced later
+    openai = {} as OpenAI;
+  }
+} else {
+  console.warn('OpenAI API key is missing or invalid. AI features will be disabled.');
+  openai = {} as OpenAI;
+}
 
 export async function generateMessageContent(
   businessInfo: string,
@@ -18,6 +35,11 @@ export async function generateMessageContent(
   writingStyle: string = 'professional',
   includeEmojis: boolean = false
 ): Promise<string> {
+  // Check if API key is available
+  if (!isApiKeyAvailable) {
+    console.error('OpenAI API key is missing. Please set VITE_OPENAI_API_KEY in your environment variables.');
+    return 'לא ניתן לייצר תוכן כרגע. מפתח ה-API חסר או לא תקין.';
+  }
   try {
     // Define writing style instructions based on selected style
     let styleInstruction = '';

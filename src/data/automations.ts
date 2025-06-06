@@ -28,6 +28,237 @@ export interface Automation {
 
 export const automations: Automation[] = [
   {
+    id: 18,
+    title: 'העלאת דאטה קיימת',
+    description: 'העלאת נתונים קיימים מקבצי אקסל או CSV',
+    category: 'general',
+    icon: 'upload',
+    requiredFields: [
+      {
+        id: 'data_file',
+        label: 'העלאת קובץ נתונים',
+        type: 'file',
+        accept: '.csv, .xlsx, .xls',
+        required: true,
+        description: 'ניתן להעלות קבצי CSV או Excel. הקובץ חייב לכלול לפחות שם ומספר טלפון.'
+      },
+      {
+        id: 'send_welcome_message',
+        label: 'לשלוח הודעת ברוכים הבאים לכל הלקוחות החדשים?',
+        type: 'checkbox',
+        defaultValue: true
+      },
+      {
+        id: 'welcome_message',
+        label: 'הודעת ברוכים הבאים',
+        type: 'textarea',
+        placeholder: 'היי [שם], ברוך הבא למערכת שלנו! אנו שמחים שהצטרפת ונשמח לעדכן אותך בחדשות ומבצעים מיוחדים. אם יש לך שאלות, אל תהסס לפנות אלינו!',
+        supportAI: true,
+        showWhen: {
+          field: 'send_welcome_message',
+          value: true
+        }
+      },
+      {
+        id: 'data_mapping',
+        label: 'מיפוי שדות הנתונים',
+        type: 'textarea',
+        placeholder: 'שם: עמודה A\nטלפון: עמודה B\nדואר אלקטרוני: עמודה C',
+        required: true,
+        description: 'ציין איזה עמודה בקובץ מתאימה לכל שדה במערכת'
+      },
+      {
+        id: 'skip_duplicates',
+        label: 'לדלג על רשומות כפולות',
+        type: 'checkbox',
+        defaultValue: true
+      }
+    ]
+  },
+  {
+    id: 17,
+    title: 'בוט ביטול ואי הגעה לפגישה',
+    description: 'טיפול אוטומטי בביטולי פגישות ואי הגעה',
+    category: 'meetings',
+    icon: 'calendar-x',
+    requiredFields: [
+      {
+        id: 'enable_cancellation_bot',
+        label: 'הפעלת בוט ביטול פגישות',
+        type: 'checkbox',
+        defaultValue: true
+      },
+      {
+        id: 'cancellation_message',
+        label: 'הודעה ללקוח בעת ביטול פגישה',
+        type: 'textarea',
+        placeholder: 'היי [שם], אנו מאשרים את ביטול הפגישה שלך בתאריך [תאריך] בשעה [שעה]. נשמח לקבוע פגישה חדשה בקישור הבא: [קישור לתיאום]',
+        supportAI: true,
+        showWhen: {
+          field: 'enable_cancellation_bot',
+          value: true
+        }
+      },
+      {
+        id: 'enable_no_show_bot',
+        label: 'הפעלת בוט אי הגעה לפגישה',
+        type: 'checkbox',
+        defaultValue: true
+      },
+      {
+        id: 'no_show_message',
+        label: 'הודעה ללקוח לאחר אי הגעה לפגישה',
+        type: 'textarea',
+        placeholder: 'היי [שם], שמנו לב שלא הצלחת להגיע לפגישה שלנו היום. אם ברצונך לקבוע פגישה חדשה, אנא לחץ כאן: [קישור לתיאום]',
+        supportAI: true,
+        showWhen: {
+          field: 'enable_no_show_bot',
+          value: true
+        }
+      },
+      {
+        id: 'reschedule_window_days',
+        label: 'חלון זמן לתיאום מחדש (ימים)',
+        type: 'number',
+        placeholder: '7',
+        defaultValue: 7,
+        required: true
+      }
+    ]
+  },
+  {
+    id: 16,
+    title: 'הסרה אוטומטית מרשימת תפוצה',
+    description: 'הסרה אוטומטית של לקוחות לא פעילים מרשימת התפוצה',
+    category: 'marketing',
+    icon: 'user-x',
+    requiredFields: [
+      {
+        id: 'inactive_days_threshold',
+        label: 'לאחר כמה ימים ללא תגובה יוסר הלקוח מהרשימה?',
+        type: 'number',
+        placeholder: '180',
+        defaultValue: 180,
+        required: true
+      },
+      {
+        id: 'last_chance_message',
+        label: 'הודעת הזדמנות אחרונה לפני הסרה',
+        type: 'textarea',
+        placeholder: 'היי [שם], שמנו לב שלא הייתה תגובה מצדך להודעות שלנו בתקופה האחרונה. אם אתה עדיין מעוניין לקבל מאיתנו עדכונים, אנא השב להודעה זו. אחרת, נסיר אותך מרשימת התפוצה שלנו בתוך 7 ימים.',
+        supportAI: true,
+        required: true
+      },
+      {
+        id: 'removal_confirmation',
+        label: 'הודעת אישור הסרה למנהל המערכת',
+        type: 'textarea',
+        placeholder: 'הלקוח [שם הלקוח] הוסר אוטומטית מרשימת התפוצה לאחר [מספר ימים] ימים ללא תגובה.',
+        supportAI: true,
+        required: true
+      }
+    ]
+  },
+  {
+    id: 15,
+    title: 'משוב בווצאפ לאחר שירות',
+    description: 'שליחת הודעת ווצאפ לבקשת משוב לאחר שירות',
+    category: 'clients',
+    icon: 'message-square',
+    requiredFields: [
+      {
+        id: 'days_after_service',
+        label: 'לאחר כמה ימים מסיום השירות תישלח הודעת המשוב?',
+        type: 'number',
+        placeholder: '3',
+        defaultValue: 3,
+        required: true
+      },
+      {
+        id: 'feedback_message',
+        label: 'הודעת בקשת משוב',
+        type: 'textarea',
+        placeholder: 'היי [שם], תודה שבחרת בשירותים שלנו. נשמח לשמוע את המשוב שלך על השירות שקיבלת. אנא דרג אותנו מ-1 עד 5 כאשר 5 הוא הטוב ביותר. תודה!',
+        supportAI: true,
+        required: true
+      },
+      {
+        id: 'enable_review_request',
+        label: 'לבקש גם ביקורת בגוגל מלקוחות מרוצים?',
+        type: 'checkbox',
+        defaultValue: false
+      },
+      {
+        id: 'google_review_message',
+        label: 'הודעת בקשת ביקורת בגוגל',
+        type: 'textarea',
+        placeholder: 'תודה רבה על המשוב החיובי! נשמח מאוד אם תוכל להשאיר לנו ביקורת גם בגוגל: [קישור לביקורת]',
+        supportAI: true,
+        showWhen: {
+          field: 'enable_review_request',
+          value: true
+        }
+      }
+    ]
+  },
+  {
+    id: 19,
+    title: 'חבר מביא חבר',
+    description: 'שליחת הודעה ללקוחות שסגרו עסקה להביא חברים/קולגות',
+    category: 'clients',
+    icon: 'users',
+    requiredFields: [
+      {
+        id: 'days_after_won',
+        label: 'לאחר כמה ימים מסגירת עסקה תישלח ההודעה?',
+        type: 'number',
+        placeholder: '14',
+        defaultValue: 14,
+        required: true
+      },
+      {
+        id: 'referral_message',
+        label: 'הודעה לבקשת הפניה מחבר/קולגה',
+        type: 'textarea',
+        placeholder: 'היי [שם], מקווים שאתה נהנה מהמוצר/שירות שלנו! האם יש לך חבר או קולגה שהמוצר שלנו יכול להתאים לו? על כל הפניה שתסגור עבורנו, תקבל [פרטי ההטבה].',
+        supportAI: true,
+        required: true
+      },
+      {
+        id: 'referral_benefit',
+        label: 'הטבה ללקוח המפנה',
+        type: 'text',
+        placeholder: 'הנחה של 10% על החידוש הבא / שובר מתנה בשווי 100 ש"ח',
+        required: true
+      }
+    ]
+  },
+  {
+    id: 14,
+    title: 'מכירה חוזרת ללקוחות קיימים',
+    description: 'שליחת הצעה אוטומטית לאחר תקופה מוגדרת',
+    category: 'clients',
+    icon: 'repeat',
+    requiredFields: [
+      {
+        id: 'days_after_purchase',
+        label: 'לאחר כמה ימים מרכישה תישלח ההצעה החוזרת?',
+        type: 'number',
+        placeholder: '90',
+        defaultValue: 90,
+        required: true
+      },
+      {
+        id: 'repeat_sale_message',
+        label: 'הודעת הצעה חוזרת ללקוחות קיימים',
+        type: 'textarea',
+        placeholder: 'היי [שם], מקווים שאתה נהנה מהמוצר/שירות שלנו! רצינו לעדכן אותך שיש לנו הצעה מיוחדת עבורך כלקוח נאמן: [פרטי ההצעה]. נשמח לעזור!',
+        supportAI: true,
+        required: true
+      }
+    ]
+  },
+  {
     id: 10,
     title: 'תיאום פגישות',
     description: 'הגדרת פרטי פגישות שהלקוח יוכל לתאם דרך המערכת',
@@ -356,6 +587,22 @@ export const automations: Automation[] = [
         type: 'textarea',
         placeholder: 'שלום! עברו שבועיים מאז שדיברנו. רצינו לבדוק האם חל שינוי ואתה מעוניין לשמוע עוד על השירותים שלנו?',
         supportAI: true
+      },
+      {
+        id: 'days_until_offer',
+        label: 'לאחר כמה ימים תישלח הצעה אוטומטית בווצאפ?',
+        type: 'number',
+        placeholder: '14',
+        defaultValue: 14,
+        required: true
+      },
+      {
+        id: 'custom_offer_message',
+        label: 'הודעת הצעה שיווקית מותאמת ללקוח שאמר "לא מעוניין"',
+        type: 'textarea',
+        placeholder: 'היי [שם], מבינים שבפעם הקודמת הטיימינג לא היה מתאים. רצינו להציע לך הצעה מיוחדת שמותאמת בדיוק לצרכים שלך: [פרטי ההצעה]. מה דעתך?',
+        supportAI: true,
+        required: true
       }
     ]
   },
