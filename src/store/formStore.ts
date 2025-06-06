@@ -152,8 +152,8 @@ export const useFormStore = create<FormState>((set, get) => ({
           workflow_steps: workflowSteps
         },
         // העברת ה-selectedAutomation כדי שיהיה זמין בפונקציית השמירה
-        selectedAutomation,
-        status: 'pending'
+        selectedAutomation
+        // הסרנו את שדה ה-status כי הוא לא קיים בטבלה
       });
       
       set({ 

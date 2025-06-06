@@ -162,8 +162,7 @@ export async function saveActiveWorkflow(clientId: string, automationData: any, 
       schedule_type: automationData.scheduleType || 'immediate',
       schedule_config: automationData.scheduleConfig || {},
       is_active: true,
-      // סטטוס ברירת מחדל עבור אזור המנהל
-      status: 'pending',
+      // הסרנו את שדה ה-status כי הוא לא קיים בטבלה
       action_config: {}
     };
     
@@ -213,6 +212,39 @@ export async function saveActiveWorkflow(clientId: string, automationData: any, 
       if (formData.meeting_scheduled_message) detailedConfig.form_inputs.meeting_scheduled_message = formData.meeting_scheduled_message;
       if (formData.meeting_reminder_24h) detailedConfig.form_inputs.meeting_reminder_24h = formData.meeting_reminder_24h;
       if (formData.meeting_reminder_1h) detailedConfig.form_inputs.meeting_reminder_1h = formData.meeting_reminder_1h;
+      
+      // Add fields for new automations (Stage 4)
+      // חבר מביא חבר
+      if (formData.referral_message) detailedConfig.form_inputs.referral_message = formData.referral_message;
+      if (formData.referral_benefit) detailedConfig.form_inputs.referral_benefit = formData.referral_benefit;
+      if (formData.days_after_won) detailedConfig.form_inputs.days_after_won = formData.days_after_won;
+      
+      // מכירה חוזרת ללקוחות קיימים
+      if (formData.repeat_sale_message) detailedConfig.form_inputs.repeat_sale_message = formData.repeat_sale_message;
+      if (formData.days_after_purchase) detailedConfig.form_inputs.days_after_purchase = formData.days_after_purchase;
+      
+      // משוב בווצאפ לאחר שירות
+      if (formData.feedback_message) detailedConfig.form_inputs.feedback_message = formData.feedback_message;
+      if (formData.days_after_service) detailedConfig.form_inputs.days_after_service = formData.days_after_service;
+      if (formData.google_review_message) detailedConfig.form_inputs.google_review_message = formData.google_review_message;
+      
+      // הסרה אוטומטית מרשימת תפוצה
+      if (formData.last_chance_message) detailedConfig.form_inputs.last_chance_message = formData.last_chance_message;
+      if (formData.removal_confirmation) detailedConfig.form_inputs.removal_confirmation = formData.removal_confirmation;
+      if (formData.days_inactive) detailedConfig.form_inputs.days_inactive = formData.days_inactive;
+      
+      // בוט ביטול ואי הגעה לפגישה
+      if (formData.cancellation_message) detailedConfig.form_inputs.cancellation_message = formData.cancellation_message;
+      if (formData.no_show_message) detailedConfig.form_inputs.no_show_message = formData.no_show_message;
+      if (formData.reschedule_message) detailedConfig.form_inputs.reschedule_message = formData.reschedule_message;
+      
+      // העלאת דאטה קיימת
+      if (formData.welcome_message) detailedConfig.form_inputs.welcome_message = formData.welcome_message;
+      if (formData.field_mapping) detailedConfig.form_inputs.field_mapping = formData.field_mapping;
+      
+      // לקוח לא מעוניין - שדות חדשים
+      if (formData.days_to_offer) detailedConfig.form_inputs.days_to_offer = formData.days_to_offer;
+      if (formData.custom_offer_message) detailedConfig.form_inputs.custom_offer_message = formData.custom_offer_message;
       
       // Add all boolean flags for enabled features
       if (formData.enable_facebook_automation !== undefined) detailedConfig.form_inputs.enable_facebook_automation = formData.enable_facebook_automation;
