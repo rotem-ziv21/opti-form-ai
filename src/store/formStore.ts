@@ -138,7 +138,8 @@ export const useFormStore = create<FormState>((set, get) => ({
       // הוספת לוג לבדיקת הנתונים שנשלחים
       console.log('Submitting form with selectedAutomation:', selectedAutomation);
       
-      await saveIntakeForm({
+      // שמירת הנתונים בסופרבייס
+      const savedData = await saveIntakeForm({
         automation_id: selectedAutomation.id,
         automation_title: selectedAutomation.title,
         automation_name: `${selectedAutomation.category} - ${selectedAutomation.title}`,
@@ -155,6 +156,43 @@ export const useFormStore = create<FormState>((set, get) => ({
         selectedAutomation
         // הסרנו את שדה ה-status כי הוא לא קיים בטבלה
       });
+      
+      // שליחת webhook עם פרטי הלקוח
+      try {
+        const webhookUrl = 'https://n8n-2-ghql.onrender.com/webhook/form-ai-opti';
+        const webhookData = {
+          automation_id: selectedAutomation.id,
+          automation_title: selectedAutomation.title,
+          automation_category: selectedAutomation.category,
+          client_name: formData.fullName as string,
+          business_name: formData.businessName as string,
+          email: formData.email as string,
+          phone: formData.phone as string,
+          form_data: formData,
+          workflow_steps: workflowSteps,
+          submission_date: new Date().toISOString(),
+          saved_data: savedData
+        };
+        
+        console.log('Sending webhook data:', webhookData);
+        
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(webhookData),
+        });
+        
+        if (!response.ok) {
+          console.error('Webhook failed:', await response.text());
+        } else {
+          console.log('Webhook sent successfully');
+        }
+      } catch (webhookError) {
+        // לא נפסיק את התהליך אם יש בעיה עם ה-webhook
+        console.error('Error sending webhook:', webhookError);
+      }
       
       set({ 
         isSubmitting: false,

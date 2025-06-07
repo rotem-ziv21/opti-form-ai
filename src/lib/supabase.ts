@@ -672,8 +672,27 @@ export async function saveIntakeForm(formData: any) {
       }
     }
     
+    // הכנת אובייקט מידע מפורט להחזרה עבור ה-webhook
+    const completeSubmissionData = {
+      client,
+      form_data: formData,
+      business_data: {
+        business_name: formData.business_name || formData.businessName || 'Unknown Business',
+        contact_name: formData.client_name || formData.fullName || 'Unknown Contact',
+        email: formData.email,
+        phone: formData.phone
+      },
+      automation: {
+        id: formData.automation_id,
+        title: formData.automation_title || '',
+        name: formData.automation_name || '',
+        category: formData.automation_category || ''
+      },
+      timestamp: new Date().toISOString()
+    };
+    
     console.log('Form data successfully processed and saved to Supabase');
-    return client;
+    return completeSubmissionData;
   } catch (error: any) {
     console.error('Error in saveIntakeForm:', error);
     
@@ -693,7 +712,7 @@ export async function saveIntakeForm(formData: any) {
     }
     
     // Return mock data on error to prevent app from crashing
-    return {
+    const mockClient = {
       id: 'mock-client-id-error',
       client_id: `client_${Date.now()}`,
       business_name: formData.businessName || 'Unknown Business',
@@ -703,6 +722,25 @@ export async function saveIntakeForm(formData: any) {
       website_url: null,
       status: 'active',
       created_at: new Date().toISOString()
+    };
+    
+    return {
+      client: mockClient,
+      form_data: formData,
+      business_data: {
+        business_name: formData.businessName || 'Unknown Business',
+        contact_name: formData.fullName || 'Unknown User',
+        email: formData.email || 'unknown@example.com',
+        phone: formData.phone || '000-000-0000'
+      },
+      automation: {
+        id: formData.automation_id || 0,
+        title: formData.automation_title || 'Unknown Automation',
+        name: formData.automation_name || 'Unknown Automation',
+        category: formData.automation_category || 'general'
+      },
+      timestamp: new Date().toISOString(),
+      error: error.message || 'Unknown error'
     };
   }
 }
