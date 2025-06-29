@@ -159,7 +159,12 @@ export const useFormStore = create<FormState>((set, get) => ({
       
       // שליחת webhook עם פרטי הלקוח
       try {
-        const webhookUrl = 'https://n8n-2-ghql.onrender.com/webhook/form-ai-opti';
+        const webhookUrl = import.meta.env.VITE_WEBHOOK_URL;
+
+        if (!webhookUrl) {
+          console.warn('Webhook URL is not configured');
+        }
+
         const webhookData = {
           automation_id: selectedAutomation.id,
           automation_title: selectedAutomation.title,
@@ -175,23 +180,27 @@ export const useFormStore = create<FormState>((set, get) => ({
         };
         
         console.log('Sending webhook data:', webhookData);
-        
-        const response = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(webhookData),
-        });
-        
-        if (!response.ok) {
-          console.error('Webhook failed:', await response.text());
-        } else {
-          console.log('Webhook sent successfully');
+
+        if (webhookUrl) {
+          const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(webhookData),
+          });
+
+          if (!response.ok) {
+            console.error('Webhook failed:', await response.text());
+            alert('שליחת הנתונים לשרת נכשלה');
+          } else {
+            console.log('Webhook sent successfully');
+          }
         }
       } catch (webhookError) {
         // לא נפסיק את התהליך אם יש בעיה עם ה-webhook
         console.error('Error sending webhook:', webhookError);
+        alert('שליחת הנתונים לשרת נכשלה');
       }
       
       set({ 

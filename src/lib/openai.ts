@@ -1,16 +1,20 @@
 import OpenAI from 'openai';
 
-// This would typically be an environment variable
-const apiKey = import.meta.env.VITE_OPENAI_API_KEY || 'your-openai-api-key';
+// Load the API key from the environment.
+// We do not provide a fallback to avoid leaking credentials in the client.
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
-const openai = new OpenAI({
-  apiKey,
-  dangerouslyAllowBrowser: true // For development only - in production this should be server-side
-});
+if (!apiKey) {
+  throw new Error('Missing OpenAI API key. Set VITE_OPENAI_API_KEY in your environment.');
+}
+
+// Client initialisation. "dangerouslyAllowBrowser" was removed to prevent
+// exposing the key when the code is bundled for the browser.
+const openai = new OpenAI({ apiKey });
 
 // Rate limit counter - in production this would be in a database
 let requestCount = 0;
-const MAX_REQUESTS = 20; // Example limit
+const MAX_REQUESTS = 20; // Example limit per hour
 const RESET_INTERVAL = 1000 * 60 * 60; // 1 hour
 
 // Reset counter periodically
@@ -21,7 +25,7 @@ setInterval(() => {
 export async function generateTextWithAI(prompt: string, style: string) {
   // Rate limiting
   if (requestCount >= MAX_REQUESTS) {
-    throw new Error('מגבלת השימוש היומית הושגה. נסה שוב מאוחר יותר');
+    throw new Error('מגבלת השימוש השעתית הושגה. נסה שוב מאוחר יותר');
   }
   
   try {
