@@ -1,9 +1,14 @@
 import OpenAI from 'openai';
 
+// Use environment variable exposed by Vite
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+
+if (!apiKey) {
+  throw new Error('Missing OpenAI API key');
+}
+
 // Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const openai = new OpenAI({ apiKey });
 
 export async function generateContent(
   businessInfo: string,

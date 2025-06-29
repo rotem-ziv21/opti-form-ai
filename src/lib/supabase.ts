@@ -1,19 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../types/supabase';
 
-// Use environment variables if available, otherwise use placeholders for development
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder-project.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
-const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_KEY || '';
+// Load Supabase credentials from environment variables
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseServiceKey = import.meta.env.VITE_SUPABASE_SERVICE_KEY;
 
-// Log the Supabase URL and keys (without exposing the full keys)
-console.log('Supabase URL:', supabaseUrl);
-console.log('Supabase Anon Key available:', supabaseAnonKey ? 'Yes (starts with: ' + supabaseAnonKey.substring(0, 10) + '...)' : 'No');
-console.log('Supabase Service Key available:', supabaseServiceKey ? 'Yes (starts with: ' + supabaseServiceKey.substring(0, 10) + '...)' : 'No');
-
-// Log a warning instead of throwing an error
-if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  console.warn('Missing Supabase environment variables. Using placeholder values for development.');
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase configuration. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
 }
 
 // Create two clients - one with anonymous key for regular operations
