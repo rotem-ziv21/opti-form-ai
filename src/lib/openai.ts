@@ -2,10 +2,10 @@ import OpenAI from 'openai';
 
 // Load the API key from the environment.
 // We do not provide a fallback to avoid leaking credentials in the client.
-const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+const apiKey = process.env.OPENAI_API_KEY;
 
 if (!apiKey) {
-  throw new Error('Missing OpenAI API key. Set VITE_OPENAI_API_KEY in your environment.');
+  throw new Error('Missing OpenAI API key. Set OPENAI_API_KEY in your environment.');
 }
 
 // Client initialisation. "dangerouslyAllowBrowser" was removed to prevent

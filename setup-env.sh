@@ -13,7 +13,7 @@ fi
 # Create .env file with the API key
 echo "Please enter your OpenAI API key:"
 read api_key
-echo "VITE_OPENAI_API_KEY=$api_key" > .env
+echo "OPENAI_API_KEY=$api_key" > .env
 
 echo ".env file created successfully with your OpenAI API key."
 echo "Remember: Never commit this file to version control."
